@@ -120,7 +120,7 @@ BEGIN
             CASE 
                 WHEN Value IS NULL OR Value = 'NULL' OR Value = '€0' THEN 0.0
                 WHEN Value LIKE '€%M' THEN CAST(REPLACE(REPLACE(Value, '€', ''), 'M', '') AS DECIMAL) * 1000000
-                WHEN Value LIKE '€%K' THEN CAST(REPLACE(REPLACE(Value, '€', ''), 'K', '') AS DECIMAL) * 1000
+                WHEN Value LIKE '€%K' THEN CAST(REPLACE(REPLACE(Value, '€', ''), 'K', '') AS DECIMAL) * 100
                 ELSE CAST(REPLACE(Value, '€', '') AS DECIMAL)
             END AS value_eur,
             
@@ -246,7 +246,7 @@ BEGIN
 
 EXCEPTION
     WHEN OTHERS THEN
-        GET DIAGNOSTICS v_error_msg = PG_EXCEPTION_CONTEXT;
+        GET STACKED DIAGNOSTICS v_error_msg = PG_EXCEPTION_CONTEXT;
         v_error_msg := SQLERRM || ' | CONTEXT: ' || v_error_msg;
         
         UPDATE etl_log 
