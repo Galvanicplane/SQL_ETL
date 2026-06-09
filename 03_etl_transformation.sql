@@ -153,7 +153,7 @@ BEGIN
         FROM staging_fifa21
         WHERE ID IN (SELECT ID FROM staging_fifa21 EXCEPT SELECT raw_record_id FROM rejected_records WHERE run_id = v_run_id)
     )
-    SELECT 
+    SELECT DISTINCT ON (player_id)
         player_id, long_name, short_name, age, overall_rating, potential_rating, nationality,
         -- Kulüp ve Kontrat Durumu Ayrıştırması
         CASE 
@@ -177,7 +177,8 @@ BEGIN
             ELSE 'Unknown'
         END AS contract_status,
         joined_date, height_cm, weight_kg, value_eur, wage_eur, release_clause_eur, preferred_foot, best_position, hits
-    FROM cleaned_raw;
+    FROM cleaned_raw
+    ORDER BY player_id, overall_rating DESC, joined_date DESC;
 
     -- A) Yeni Uyrukları (Nationality) dim_nationalities Tablosuna Yükle
     INSERT INTO dim_nationalities (nationality_name)
