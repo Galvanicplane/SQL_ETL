@@ -88,8 +88,8 @@ BEGIN
             
             -- Team & Contract kolonu içindeki yeni satırları temizle
             -- chr(10) PostgreSQL'de line feed (\n) karakteridir
-            TRIM(split_part(trim(regexp_replace(Team_Contract, '[\r\n\t]+', chr(10), 'g')), chr(10), 1)) AS club_raw,
-            trim(regexp_replace(Team_Contract, '[\r\n\t]+', chr(10), 'g')) AS tc_clean,
+            TRIM(split_part(regexp_replace(trim(both E'\r\n\t ' from Team_Contract), '[\r\n\t]+', chr(10), 'g'), chr(10), 1)) AS club_raw,
+            regexp_replace(trim(both E'\r\n\t ' from Team_Contract), '[\r\n\t]+', chr(10), 'g') AS tc_clean,
             
             -- Boy (Height) Standardizasyonu (Örn: 5'7" -> cm veya 188cm -> cm)
             CASE 
@@ -120,7 +120,7 @@ BEGIN
             CASE 
                 WHEN Value IS NULL OR Value = 'NULL' OR Value = '€0' THEN 0.0
                 WHEN Value LIKE '€%M' THEN CAST(REPLACE(REPLACE(Value, '€', ''), 'M', '') AS DECIMAL) * 1000000
-                WHEN Value LIKE '€%K' THEN CAST(REPLACE(REPLACE(Value, '€', ''), 'K', '') AS DECIMAL) * 100
+                WHEN Value LIKE '€%K' THEN CAST(REPLACE(REPLACE(Value, '€', ''), 'K', '') AS DECIMAL) * 1000
                 ELSE CAST(REPLACE(Value, '€', '') AS DECIMAL)
             END AS value_eur,
             
